@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # SQL Server Database
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: lessionprm-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=LessionPRM123!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - lessionprm-network
+
+  # LessionPRM Backend Application
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lessionprm-backend
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_USERNAME=sa
+      - DB_PASSWORD=LessionPRM123!
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://database:1433;databaseName=LessionPRM;encrypt=true;trustServerCertificate=true
+      - JWT_SECRET=lessionprm-docker-secret-key-change-in-production
+      - MOMO_PARTNER_CODE=MOMOBKUN20180529
+      - MOMO_ACCESS_KEY=klm05TvNBzhg7h7j
+      - MOMO_SECRET_KEY=at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    networks:
+      - lessionprm-network
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: lessionprm-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - lessionprm-network
+    restart: unless-stopped
+
+volumes:
+  sqlserver_data:
+
+networks:
+  lessionprm-network:
+    driver: bridge

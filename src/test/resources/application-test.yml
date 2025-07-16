@@ -1,0 +1,46 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+    
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        
+  h2:
+    console:
+      enabled: true
+
+  security:
+    jwt:
+      secret: test-secret-key-for-testing-purposes-only
+      expiration: 86400000
+      refresh-expiration: 604800000
+
+# Disable mail for tests
+  mail:
+    host: localhost
+    port: 587
+    username: test
+    password: test
+
+# MoMo test configuration
+momo:
+  partner-code: TEST_PARTNER
+  access-key: TEST_ACCESS_KEY
+  secret-key: TEST_SECRET_KEY
+  endpoint: http://localhost:8080/test/momo
+  redirect-url: http://localhost:3000/test/success
+  notify-url: http://localhost:8080/test/callback
+
+logging:
+  level:
+    com.lessionprm.backend: INFO
+    org.springframework.security: WARN
+    org.hibernate: WARN
