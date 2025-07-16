@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -87,8 +88,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 // Public endpoints
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/courses").permitAll()
-                .requestMatchers("/courses/{id}").permitAll()
+                .requestMatchers("/courses", "/courses/{id}").permitAll()
+                .requestMatchers("/courses/search", "/courses/category/**", "/courses/instructor/**").permitAll()
+                .requestMatchers("/courses/level/**", "/courses/price-range", "/courses/categories").permitAll()
+                .requestMatchers("/courses/instructors", "/courses/available").permitAll()
                 .requestMatchers("/payment/momo/callback").permitAll()
                 
                 // Swagger/OpenAPI endpoints
@@ -97,8 +100,10 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-resources/**").permitAll()
                 .requestMatchers("/webjars/**").permitAll()
                 
-                // Admin only endpoints
-                .requestMatchers("/courses").hasRole("ADMIN")
+                // Admin only endpoints  
+                .requestMatchers(HttpMethod.POST, "/courses").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/courses/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/courses/**").hasRole("ADMIN")
                 .requestMatchers("/users").hasRole("ADMIN")
                 .requestMatchers("/users/**").hasRole("ADMIN")
                 .requestMatchers("/expenses/**").hasRole("ADMIN")
