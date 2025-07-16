@@ -1,0 +1,545 @@
+{
+  "info": {
+    "name": "LessionPRM Backend API",
+    "description": "Complete API collection for LessionPRM Backend - Course Selling Platform",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set base URL",
+          "pm.globals.set('base_url', 'http://localhost:8080/api');"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080/api",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.globals.set('jwt_token', response.token);",
+                  "    console.log('JWT Token set:', response.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Courses",
+      "item": [
+        {
+          "name": "Get All Courses",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/courses?page=0&size=10",
+              "host": ["{{base_url}}"],
+              "path": ["courses"],
+              "query": [
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Course by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/courses/1",
+              "host": ["{{base_url}}"],
+              "path": ["courses", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Course (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"New Course\",\n  \"description\": \"A new programming course\",\n  \"price\": 199.99,\n  \"durationHours\": 30,\n  \"instructor\": \"John Doe\",\n  \"category\": \"Programming\",\n  \"level\": \"BEGINNER\",\n  \"maxStudents\": 25\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/courses",
+              "host": ["{{base_url}}"],
+              "path": ["courses"]
+            }
+          }
+        },
+        {
+          "name": "Search Courses",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/courses/search?keyword=java",
+              "host": ["{{base_url}}"],
+              "path": ["courses", "search"],
+              "query": [
+                {"key": "keyword", "value": "java"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Course Reviews",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/courses/1/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["courses", "1", "reviews"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create MoMo Payment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"courseId\": 1,\n  \"amount\": 299.99,\n  \"orderInfo\": \"Purchase Java Programming Course\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/create",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "create"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/payments/ORDER123/status",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "ORDER123", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/users/profile",
+              "host": ["{{base_url}}"],
+              "path": ["users", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Updated First\",\n  \"lastName\": \"Updated Last\",\n  \"phoneNumber\": \"+1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/profile",
+              "host": ["{{base_url}}"],
+              "path": ["users", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/users?page=0&size=10",
+              "host": ["{{base_url}}"],
+              "path": ["users"],
+              "query": [
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "10"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invoices",
+      "item": [
+        {
+          "name": "Get User Invoices",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/invoices",
+              "host": ["{{base_url}}"],
+              "path": ["invoices"]
+            }
+          }
+        },
+        {
+          "name": "Create Invoice",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": 1,\n  \"paymentMethod\": \"MOMO\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/invoices",
+              "host": ["{{base_url}}"],
+              "path": ["invoices"]
+            }
+          }
+        },
+        {
+          "name": "Get Invoice Statistics (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/invoices/statistics",
+              "host": ["{{base_url}}"],
+              "path": ["invoices", "statistics"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Expenses (Admin)",
+      "item": [
+        {
+          "name": "Get All Expenses",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/expenses",
+              "host": ["{{base_url}}"],
+              "path": ["expenses"]
+            }
+          }
+        },
+        {
+          "name": "Create Expense",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Office Supplies\",\n  \"amount\": 150.00,\n  \"category\": \"Office Expenses\",\n  \"date\": \"2024-01-31\",\n  \"notes\": \"Monthly office supplies purchase\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/expenses",
+              "host": ["{{base_url}}"],
+              "path": ["expenses"]
+            }
+          }
+        },
+        {
+          "name": "Approve Expense",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/expenses/1/approve",
+              "host": ["{{base_url}}"],
+              "path": ["expenses", "1", "approve"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Statistics (Admin)",
+      "item": [
+        {
+          "name": "Get Dashboard Data",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/statistics/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["statistics", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Get Revenue Statistics",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/statistics/revenue",
+              "host": ["{{base_url}}"],
+              "path": ["statistics", "revenue"]
+            }
+          }
+        },
+        {
+          "name": "Get Course Statistics",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/statistics/courses",
+              "host": ["{{base_url}}"],
+              "path": ["statistics", "courses"]
+            }
+          }
+        },
+        {
+          "name": "Get Financial Overview",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {"key": "token", "value": "{{jwt_token}}"}
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/statistics/financial",
+              "host": ["{{base_url}}"],
+              "path": ["statistics", "financial"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health & Monitoring",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Detailed Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/health/detailed",
+              "host": ["{{base_url}}"],
+              "path": ["health", "detailed"]
+            }
+          }
+        },
+        {
+          "name": "Actuator Health",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/actuator/health",
+              "host": ["{{base_url}}"],
+              "path": ["actuator", "health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -186,9 +186,31 @@ Once the application is running, visit:
 - `PUT /api/invoices/{id}/failed` - Mark invoice as failed
 
 ### Payment
-- `POST /api/payment/momo/create` - Create MoMo payment
-- `POST /api/payment/momo/callback` - MoMo payment callback
-- `GET /api/payment/momo/status/{orderId}` - Get payment status
+- `POST /api/payments/create` - Create MoMo payment
+- `POST /api/payments/callback` - MoMo payment callback
+- `GET /api/payments/{orderId}/status` - Get payment status
+- `POST /api/payments/{orderId}/refund` - Process refund
+
+### Expenses (Admin Only)
+- `GET /api/expenses` - Get all expenses
+- `POST /api/expenses` - Create expense
+- `PUT /api/expenses/{id}` - Update expense
+- `DELETE /api/expenses/{id}` - Delete expense
+- `PUT /api/expenses/{id}/approve` - Approve expense
+- `GET /api/expenses/categories` - Get expense categories
+- `GET /api/expenses/totals` - Get expense totals
+
+### Statistics (Admin Only)
+- `GET /api/statistics/dashboard` - Dashboard statistics
+- `GET /api/statistics/revenue` - Revenue analytics
+- `GET /api/statistics/courses` - Course statistics
+- `GET /api/statistics/users` - User statistics
+- `GET /api/statistics/financial` - Financial overview
+
+### Health Monitoring
+- `GET /api/health` - Basic health check
+- `GET /api/health/detailed` - Detailed health status
+- `GET /api/actuator/health` - Spring Boot actuator health
 
 ## 🔐 Security
 
