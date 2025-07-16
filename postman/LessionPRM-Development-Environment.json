@@ -1,0 +1,42 @@
+{
+  "id": "development-environment",
+  "name": "LessionPRM Development",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080/api",
+      "enabled": true
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "admin_username",
+      "value": "admin",
+      "enabled": true
+    },
+    {
+      "key": "admin_password",
+      "value": "admin123",
+      "enabled": true
+    },
+    {
+      "key": "test_user_email",
+      "value": "test@example.com",
+      "enabled": true
+    },
+    {
+      "key": "test_user_username",
+      "value": "testuser",
+      "enabled": true
+    },
+    {
+      "key": "test_user_password",
+      "value": "password123",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

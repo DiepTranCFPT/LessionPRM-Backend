@@ -181,6 +181,75 @@ public class PaymentServiceImpl implements PaymentService {
         invoiceService.markAsFailed(invoice.getId(), reason);
     }
     
+    @Override
+    public PaymentResponse processRefund(String orderId) {
+        try {
+            Invoice invoice = invoiceService.getInvoiceByOrderId(orderId)
+                    .orElseThrow(() -> new BadRequestException("Invoice not found with orderId: " + orderId));
+            
+            if (!Invoice.Status.PAID.equals(invoice.getStatus())) {
+                throw new BadRequestException("Cannot refund invoice that is not paid");
+            }
+            
+            // Prepare MoMo refund request
+            String requestId = "refund_" + orderId + "_" + System.currentTimeMillis();
+            String amount = invoice.getAmount().longValue() + "";
+            String transId = invoice.getTransactionId();
+            
+            // Create signature for refund
+            String rawHash = "accessKey=" + moMoConfig.getAccessKey() +
+                    "&amount=" + amount +
+                    "&description=Refund for order " + orderId +
+                    "&orderId=" + orderId +
+                    "&partnerCode=" + moMoConfig.getPartnerCode() +
+                    "&requestId=" + requestId +
+                    "&transId=" + transId;
+            
+            String signature = hmacSHA256(rawHash, moMoConfig.getSecretKey());
+            
+            // Prepare refund request body
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("partnerCode", moMoConfig.getPartnerCode());
+            requestBody.put("accessKey", moMoConfig.getAccessKey());
+            requestBody.put("requestId", requestId);
+            requestBody.put("amount", amount);
+            requestBody.put("orderId", orderId);
+            requestBody.put("transId", transId);
+            requestBody.put("description", "Refund for order " + orderId);
+            requestBody.put("signature", signature);
+            
+            // Send refund request to MoMo
+            String refundEndpoint = moMoConfig.getEndpoint().replace("/create", "/refund");
+            String responseBody = sendHttpPost(refundEndpoint, requestBody);
+            
+            // Parse response
+            @SuppressWarnings("unchecked")
+            Map<String, Object> momoResponse = objectMapper.readValue(responseBody, Map.class);
+            
+            PaymentResponse response = new PaymentResponse();
+            response.setOrderId(orderId);
+            response.setInvoiceId(invoice.getId());
+            response.setAmount(invoice.getAmount());
+            response.setTransactionId(transId);
+            
+            if ("0".equals(momoResponse.get("resultCode"))) {
+                // Refund successful
+                invoiceService.markAsRefunded(invoice.getId(), "Refund processed successfully");
+                response.setStatus("REFUNDED");
+                response.setMessage("Refund processed successfully");
+            } else {
+                response.setStatus("REFUND_FAILED");
+                response.setMessage((String) momoResponse.get("message"));
+                response.setResultCode((String) momoResponse.get("resultCode"));
+            }
+            
+            return response;
+            
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to process refund: " + e.getMessage());
+        }
+    }
+    
     private String hmacSHA256(String data, String key) throws NoSuchAlgorithmException, InvalidKeyException {
         Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
         SecretKeySpec secret_key = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");

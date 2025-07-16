@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 @Tag(name = "Users", description = "User management APIs")
 public class UserController {
     
@@ -138,5 +138,15 @@ public class UserController {
         );
         
         return ResponseEntity.ok(stats);
+    }
+    
+    @PutMapping("/{id}/role")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Change user role", description = "Change user role (Admin only)")
+    public ResponseEntity<User> changeUserRole(@PathVariable Long id, @RequestBody Map<String, String> roleData) {
+        String roleStr = roleData.get("role");
+        User.Role role = User.Role.valueOf(roleStr.toUpperCase());
+        User updatedUser = userService.changeUserRole(id, role);
+        return ResponseEntity.ok(updatedUser);
     }
 }

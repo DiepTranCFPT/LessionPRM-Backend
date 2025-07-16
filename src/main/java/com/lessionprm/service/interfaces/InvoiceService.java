@@ -40,6 +40,8 @@ public interface InvoiceService {
     
     Invoice markAsFailed(Long id, String reason);
     
+    Invoice markAsRefunded(Long id, String reason);
+    
     Invoice markAsCancelled(Long id);
     
     void deleteInvoice(Long id);

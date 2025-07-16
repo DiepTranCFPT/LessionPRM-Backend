@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/invoices")
+@RequestMapping("/api/invoices")
 @Tag(name = "Invoices", description = "Invoice management APIs")
 public class InvoiceController {
     

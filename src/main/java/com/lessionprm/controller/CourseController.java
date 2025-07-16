@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/courses")
+@RequestMapping("/api/courses")
 @Tag(name = "Courses", description = "Course management APIs")
 public class CourseController {
     
@@ -140,5 +140,30 @@ public class CourseController {
     public ResponseEntity<List<Course>> getAvailableCourses() {
         List<Course> courses = courseService.getAvailableCourses();
         return ResponseEntity.ok(courses);
+    }
+    
+    @PostMapping("/{id}/enroll")
+    @Operation(summary = "Enroll in course", description = "Enroll current user in a course")
+    public ResponseEntity<Map<String, String>> enrollInCourse(@PathVariable Long id) {
+        courseService.enrollUserInCourse(id);
+        return ResponseEntity.ok(Map.of("message", "Successfully enrolled in course"));
+    }
+    
+    @GetMapping("/{id}/reviews")
+    @Operation(summary = "Get course reviews", description = "Get reviews for a specific course")
+    public ResponseEntity<List<Map<String, Object>>> getCourseReviews(@PathVariable Long id) {
+        List<Map<String, Object>> reviews = courseService.getCourseReviews(id);
+        return ResponseEntity.ok(reviews);
+    }
+    
+    @PostMapping("/{id}/reviews")
+    @Operation(summary = "Add course review", description = "Add a review for a course")
+    public ResponseEntity<Map<String, String>> addCourseReview(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> reviewData) {
+        Integer rating = (Integer) reviewData.get("rating");
+        String comment = (String) reviewData.get("comment");
+        courseService.addCourseReview(id, rating, comment);
+        return ResponseEntity.ok(Map.of("message", "Review added successfully"));
     }
 }

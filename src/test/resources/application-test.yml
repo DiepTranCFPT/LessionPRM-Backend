@@ -16,6 +16,9 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
     defer-datasource-initialization: true
+  
+  flyway:
+    enabled: false  # Disable Flyway in tests
     
   h2:
     console:
