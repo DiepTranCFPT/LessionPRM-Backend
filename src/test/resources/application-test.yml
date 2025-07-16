@@ -1,10 +1,13 @@
 spring:
+  application:
+    name: lession-prm-backend-test
+
   datasource:
     url: jdbc:h2:mem:testdb
     username: sa
-    password: 
+    password:
     driver-class-name: org.h2.Driver
-    
+
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -12,35 +15,60 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
-        
+    defer-datasource-initialization: true
+
+  flyway:
+    enabled: false
+
   h2:
     console:
       enabled: true
 
-  security:
-    jwt:
-      secret: test-secret-key-for-testing-purposes-only
-      expiration: 86400000
-      refresh-expiration: 604800000
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    default-property-inclusion: NON_NULL
 
-# Disable mail for tests
   mail:
     host: localhost
     port: 587
     username: test
     password: test
 
-# MoMo test configuration
+server:
+  port: 0
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    com.lessionprm: WARN
+    com.lessionprm.backend: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate: WARN
+    root: WARN
+
+jwt:
+  secret: test-secret-key-for-testing-purposes-only
+  expiration: 86400000
+  refresh-expiration: 604800000
+
 momo:
   partner-code: TEST_PARTNER
   access-key: TEST_ACCESS_KEY
   secret-key: TEST_SECRET_KEY
-  endpoint: http://localhost:8080/test/momo
-  redirect-url: http://localhost:3000/test/success
-  notify-url: http://localhost:8080/test/callback
+  endpoint: https://test-payment.momo.vn/v2/gateway/api/create
+  redirect-url: http://localhost:3000/payment/success
+  notify-url: http://localhost:8080/api/payment/momo/callback
 
-logging:
-  level:
-    com.lessionprm.backend: INFO
-    org.springframework.security: WARN
-    org.hibernate: WARN
+cors:
+  allowed-origins: http://localhost:3000
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true
+
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false

@@ -1,5 +1,8 @@
 FROM openjdk:17-jdk-slim
 
+# Multi-stage Docker build for production
+FROM maven:3.9.4-eclipse-temurin-17-alpine AS builder
+
 # Set working directory
 WORKDIR /app
 
@@ -10,25 +13,29 @@ COPY mvnw pom.xml ./
 # Download dependencies (this layer will be cached if pom.xml doesn't change)
 RUN ./mvnw dependency:go-offline -B
 
-# Copy source code
+
+# Copy Maven configuration
+COPY pom.xml ./
 COPY src ./src
 
-# Build the application
-RUN ./mvnw clean package -DskipTests -B
+# Build application (skip tests for faster build)
+RUN mvn clean package -DskipTests
 
-# Create a new stage for the runtime
-FROM openjdk:17-jre-slim
+# Production stage
+FROM eclipse-temurin:17-jre-alpine
 
+# Add non-root user for security
+RUN addgroup -g 1001 -S spring && \
+    adduser -u 1001 -S spring -G spring
+
+# Set working directory
 WORKDIR /app
 
-# Create non-root user
-RUN groupadd -r spring && useradd -r -g spring spring
+# Copy JAR from builder stage
+COPY --from=builder /app/target/lession-prm-backend-*.jar app.jar
 
-# Copy the built JAR file
-COPY --from=0 /app/target/backend-0.0.1-SNAPSHOT.jar app.jar
-
-# Change ownership of the app directory
-RUN chown -R spring:spring /app
+# Change ownership to spring user
+RUN chown spring:spring app.jar
 
 # Switch to non-root user
 USER spring:spring
@@ -38,7 +45,14 @@ EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/api/health || exit 1
+
+# JVM optimization for containers
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+
+# Set active profile
+ENV SPRING_PROFILES_ACTIVE=docker
+
+# Run application with optimized JVM settings
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
