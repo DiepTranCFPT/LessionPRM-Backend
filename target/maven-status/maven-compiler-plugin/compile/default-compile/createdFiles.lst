@@ -1,0 +1,10 @@
+com/lessionprm/entity/User.class
+com/lessionprm/entity/User$Role.class
+com/lessionprm/entity/Invoice$PaymentMethod.class
+com/lessionprm/entity/Invoice.class
+com/lessionprm/entity/Revenue.class
+com/lessionprm/LessionPrmApplication.class
+com/lessionprm/entity/Course$Level.class
+com/lessionprm/entity/Course.class
+com/lessionprm/entity/Expense.class
+com/lessionprm/entity/Invoice$Status.class
