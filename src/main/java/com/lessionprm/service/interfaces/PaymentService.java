@@ -13,6 +13,8 @@ public interface PaymentService {
     
     PaymentResponse getPaymentStatus(String orderId);
     
+    PaymentResponse processRefund(String orderId);
+    
     void processSuccessfulPayment(String orderId, String transactionId);
     
     void processFailedPayment(String orderId, String reason);

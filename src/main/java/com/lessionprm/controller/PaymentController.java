@@ -13,31 +13,38 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/payment")
+@RequestMapping("/api/payments")
 @Tag(name = "Payment", description = "Payment processing APIs")
 public class PaymentController {
     
     @Autowired
     private PaymentService paymentService;
     
-    @PostMapping("/momo/create")
+    @PostMapping("/create")
     @Operation(summary = "Create MoMo payment", description = "Create MoMo payment for course purchase")
     public ResponseEntity<PaymentResponse> createMoMoPayment(@Valid @RequestBody PaymentRequest request) {
         PaymentResponse response = paymentService.createMoMoPayment(request);
         return ResponseEntity.ok(response);
     }
     
-    @PostMapping("/momo/callback")
+    @PostMapping("/callback")
     @Operation(summary = "MoMo payment callback", description = "Handle MoMo payment callback")
     public ResponseEntity<PaymentResponse> handleMoMoCallback(@RequestParam Map<String, String> params) {
         PaymentResponse response = paymentService.handleMoMoCallback(params);
         return ResponseEntity.ok(response);
     }
     
-    @GetMapping("/momo/status/{orderId}")
+    @GetMapping("/{orderId}/status")
     @Operation(summary = "Get payment status", description = "Get payment status by order ID")
     public ResponseEntity<PaymentResponse> getPaymentStatus(@PathVariable String orderId) {
         PaymentResponse response = paymentService.getPaymentStatus(orderId);
+        return ResponseEntity.ok(response);
+    }
+    
+    @PostMapping("/{orderId}/refund")
+    @Operation(summary = "Process refund", description = "Process refund for a payment")
+    public ResponseEntity<PaymentResponse> processRefund(@PathVariable String orderId) {
+        PaymentResponse response = paymentService.processRefund(orderId);
         return ResponseEntity.ok(response);
     }
 }

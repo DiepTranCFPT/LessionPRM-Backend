@@ -1,19 +1,24 @@
 package com.lessionprm.service.impl;
 
 import com.lessionprm.entity.Course;
+import com.lessionprm.entity.User;
 import com.lessionprm.exception.BadRequestException;
 import com.lessionprm.exception.ResourceNotFoundException;
 import com.lessionprm.repository.CourseRepository;
 import com.lessionprm.service.interfaces.CourseService;
+import com.lessionprm.service.interfaces.InvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -21,6 +26,9 @@ public class CourseServiceImpl implements CourseService {
     
     @Autowired
     private CourseRepository courseRepository;
+    
+    @Autowired
+    private InvoiceService invoiceService;
     
     @Override
     public Course createCourse(Course course) {
@@ -201,5 +209,81 @@ public class CourseServiceImpl implements CourseService {
         }
         
         return course;
+    }
+    
+    @Override
+    public void enrollUserInCourse(Long courseId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + courseId));
+        
+        if (!course.getIsActive()) {
+            throw new BadRequestException("Course is not active");
+        }
+        
+        // Check if user already enrolled (purchased the course)
+        if (invoiceService.hasUserPurchasedCourse(currentUser.getId(), courseId)) {
+            throw new BadRequestException("User is already enrolled in this course");
+        }
+        
+        throw new BadRequestException("Course enrollment requires payment. Please purchase the course first.");
+    }
+    
+    @Override
+    public List<Map<String, Object>> getCourseReviews(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + courseId));
+        
+        // For now, return mock reviews since we don't have a Review entity yet
+        // In a real implementation, you would have a Review entity and repository
+        List<Map<String, Object>> reviews = new ArrayList<>();
+        
+        // Mock review data
+        Map<String, Object> review1 = new HashMap<>();
+        review1.put("id", 1L);
+        review1.put("rating", 5);
+        review1.put("comment", "Excellent course! Very well structured and informative.");
+        review1.put("userName", "John Doe");
+        review1.put("createdAt", LocalDateTime.now().minusDays(7));
+        reviews.add(review1);
+        
+        Map<String, Object> review2 = new HashMap<>();
+        review2.put("id", 2L);
+        review2.put("rating", 4);
+        review2.put("comment", "Good content, but could use more practical examples.");
+        review2.put("userName", "Jane Smith");
+        review2.put("createdAt", LocalDateTime.now().minusDays(3));
+        reviews.add(review2);
+        
+        return reviews;
+    }
+    
+    @Override
+    public void addCourseReview(Long courseId, Integer rating, String comment) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + courseId));
+        
+        // Check if user has purchased the course
+        if (!invoiceService.hasUserPurchasedCourse(currentUser.getId(), courseId)) {
+            throw new BadRequestException("You must purchase the course before leaving a review");
+        }
+        
+        if (rating < 1 || rating > 5) {
+            throw new BadRequestException("Rating must be between 1 and 5");
+        }
+        
+        // For now, just validate the input since we don't have a Review entity yet
+        // In a real implementation, you would save the review to a Review entity
+        // Review review = new Review(currentUser, course, rating, comment);
+        // reviewRepository.save(review);
+        
+        // Mock implementation - just log that review was added
+        System.out.println("Review added for course " + courseId + " by user " + currentUser.getUsername() + 
+                          " with rating " + rating + " and comment: " + comment);
     }
 }

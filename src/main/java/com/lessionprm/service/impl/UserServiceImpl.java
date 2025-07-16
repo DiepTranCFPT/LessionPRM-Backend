@@ -173,4 +173,13 @@ public class UserServiceImpl implements UserService {
         
         return userRepository.save(user);
     }
+    
+    @Override
+    public User changeUserRole(Long id, User.Role role) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        
+        user.setRole(role);
+        return userRepository.save(user);
+    }
 }

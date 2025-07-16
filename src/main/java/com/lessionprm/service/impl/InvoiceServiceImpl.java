@@ -155,6 +155,17 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
     
     @Override
+    public Invoice markAsRefunded(Long id, String reason) {
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
+        
+        invoice.setStatus(Invoice.Status.REFUNDED);
+        invoice.setNotes(reason);
+        
+        return invoiceRepository.save(invoice);
+    }
+    
+    @Override
     public Invoice markAsCancelled(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));

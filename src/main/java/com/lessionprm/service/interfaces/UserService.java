@@ -42,5 +42,7 @@ public interface UserService {
     
     User changePassword(Long id, String currentPassword, String newPassword);
     
+    User changeUserRole(Long id, User.Role role);
+    
     User updateProfile(Long id, String firstName, String lastName, String phoneNumber);
 }
