@@ -1,3 +1,32 @@
+
+target/
+*.log
+.DS_Store
+*.tmp
+*.swp
+*.swo
+*~.nib
+local.properties
+.settings/
+.loadpath
+.factorypath
+.project
+.classpath
+.metadata/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.idea/
+*.iml
+*.iws
+.vscode/
+.mvn/
+mvnw
+mvnw.cmd
 # Compiled class files
 *.class
 

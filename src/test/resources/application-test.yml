@@ -1,13 +1,13 @@
 spring:
   application:
     name: lession-prm-backend-test
-  
+
   datasource:
     url: jdbc:h2:mem:testdb
     username: sa
-    password: 
+    password:
     driver-class-name: org.h2.Driver
-    
+
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -16,32 +16,40 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
     defer-datasource-initialization: true
-  
+
   flyway:
-    enabled: false  # Disable Flyway in tests
-    
+    enabled: false
+
   h2:
     console:
       enabled: true
-    
+
   jackson:
     property-naming-strategy: SNAKE_CASE
     default-property-inclusion: NON_NULL
+
+  mail:
+    host: localhost
+    port: 587
+    username: test
+    password: test
 
 server:
   port: 0
   servlet:
     context-path: /api
-    
+
 logging:
   level:
     com.lessionprm: WARN
+    com.lessionprm.backend: INFO
     org.springframework.security: WARN
     org.hibernate.SQL: WARN
+    org.hibernate: WARN
     root: WARN
 
 jwt:
-  secret: testSecretKey12345678901234567890123456789012345678901234567890
+  secret: test-secret-key-for-testing-purposes-only
   expiration: 86400000
   refresh-expiration: 604800000
 

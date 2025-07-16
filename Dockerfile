@@ -1,8 +1,18 @@
+FROM openjdk:17-jdk-slim
+
 # Multi-stage Docker build for production
 FROM maven:3.9.4-eclipse-temurin-17-alpine AS builder
 
 # Set working directory
 WORKDIR /app
+
+# Copy Maven wrapper and pom.xml
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
+
+# Download dependencies (this layer will be cached if pom.xml doesn't change)
+RUN ./mvnw dependency:go-offline -B
+
 
 # Copy Maven configuration
 COPY pom.xml ./
@@ -35,6 +45,7 @@ EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
+
   CMD wget --no-verbose --tries=1 --spider http://localhost:8080/api/health || exit 1
 
 # JVM optimization for containers
